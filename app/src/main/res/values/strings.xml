@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Material File Manager</string>
+    <string name="root_drawer">Root Directory</string>
+    <string name="images_drawer">Images</string>
+    <string name="music_drawer">Music</string>
+    <string name="downloads_drawer">Downloads</string>
+    <string name="documents_drawer">Documents</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="fab_new_file">New File</string>
+    <string name="fab_new_dir">New Directory</string>
+    <string name="hint_new_file">File name...</string>
+    <string name="available_space">megabytes</string>
+    <string name="free_space">Free space:</string>
+    <string name="file_created">File Created</string>
+    <string name="directory_created">Directory Created</string>
+    <string name="file_renamed">File Renamed</string>
+    <string name="file_deleted">File Deleted</string>
+    <string name="file_copied">File/Folder Copied</string>
+    <string name="file_moved">File/Folder Moved</string>
+    <string name="empty_folder">Empty Folder</string>
+    <string name="move_button">Move</string>
+    <string name="copy_button">Copy</string>
+    <string name="rename_button">Rename</string>
+    <string name="delete_button">Delete</string>
+    <string name="internal_storage">Internal Storage</string>
+    <string name="removable_sd">Removable SD Card</string>
+    <string name="acitivty_not_found">No app can open this file</string>
+    <string name="no_results">No results</string>
+
+</resources>
