@@ -7,4 +7,4 @@ I started to develop this App as my first Android Project. I focalized mainly ab
 - Providing a fast and responsive experience for the user.
 
 UI Example:
-![screenshot_20161019-222124_framed](https://cloud.githubusercontent.com/assets/22922339/19537177/4da078a8-964f-11e6-858e-be3124fe7b87.png)
+![screenshot_20161030-230519_framed](https://cloud.githubusercontent.com/assets/22922339/19840445/2f214aa6-9ef6-11e6-99a8-93bb316eb98b.png)
