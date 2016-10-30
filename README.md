@@ -10,7 +10,7 @@ It has also the most common functions as a File Explorer, like:
 - Multiple files selection;
 - Create new files or directories;
 - Copy, Move, Delete, or Rename files or directories;
-- Zip and Unzip files and directories
+- Zip and Unzip files and directories;
 - Global search of files and directories in the phone memory.
 
 I think also that customization is a fundamental part of an Android App, so i've given the user the opportunity to change the drawer shortcut paths (to Images folder, Music folder, and Download folder).
