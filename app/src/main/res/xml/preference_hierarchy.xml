@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/preferencefrag_default_folder">
+
+
+        <EditTextPreference
+            android:dialogMessage="@string/folder_should_settings"
+            android:dialogTitle="@string/title_images_preference"
+            android:key="images_preference"
+            android:title="@string/title_images_preference" />
+        <EditTextPreference
+            android:dialogMessage="@string/folder_should_settings"
+            android:dialogTitle="@string/title_music_preference"
+            android:key="music_preference"
+            android:title="@string/title_music_preference" />
+        <EditTextPreference
+            android:dialogMessage="@string/folder_should_settings"
+            android:dialogTitle="@string/title_downloads_preference"
+            android:key="downloads_preference"
+            android:title="@string/title_downloads_preference" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/informations">
+
+        <Preference android:layout="@layout/developer_prefs" />
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
