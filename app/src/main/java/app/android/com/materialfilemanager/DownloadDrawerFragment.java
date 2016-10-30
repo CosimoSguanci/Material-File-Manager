@@ -1,11 +1,12 @@
 package app.android.com.materialfilemanager;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ import com.github.clans.fab.FloatingActionMenu;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,6 +52,9 @@ public class DownloadDrawerFragment extends Fragment {
     private TextView emptyTextView;
     private String tmpPathBuff;
     private boolean exceptionLaunched = false;
+    private List<String> checkedPaths;
+    private int scrollPosition;
+    private String defaultFolderName;
 
     public static DownloadDrawerFragment newIstance() {
         return new DownloadDrawerFragment();
@@ -64,15 +69,22 @@ public class DownloadDrawerFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
+        SharedPreferences defaultFolder= PreferenceManager.getDefaultSharedPreferences(getActivity());
         pathStack = new Stack<>();
+        emptyTextView = new TextView(getContext());
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.rootView);
+        emptyTextView.setVisibility(View.VISIBLE);
+        parentLayout.addView(emptyTextView);
         FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
         fabMain.setVisibility(View.VISIBLE);
         textCurrentPath = (TextView) getView().findViewWithTag("textViewCurrentDir");
-        textCurrentPath.setText(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
         recyclerViewDownloads = (RecyclerView) getView().findViewById(R.id.recycler_view);
-        currentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS); // Setting current directory to Downloads default directory
+        if(!(defaultFolderName=defaultFolder.getString("downloads_preference","")).equals("")){
+            currentDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+defaultFolderName);
+        }
+        else
+            currentDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS); // Setting current directory to Downloads default directory
+        textCurrentPath.setText(currentDir.getAbsolutePath());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerViewDownloads.setLayoutManager(mLayoutManager);
         recyclerViewDownloads.setItemAnimator(new DefaultItemAnimator());
@@ -98,6 +110,8 @@ public class DownloadDrawerFragment extends Fragment {
                         if (emptyTextView != null) {
                             emptyTextView.setVisibility(View.GONE);
                         }
+                        FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
+                        fabMain.close(true);
                         if (!pathStack.isEmpty()) {
                             currentDir = new File(pathStack.pop());
                             setupData(currentDir);
@@ -125,7 +139,7 @@ public class DownloadDrawerFragment extends Fragment {
         try {
             for (File ff : dirs) {
                 Date lastModDate = new Date(ff.lastModified());
-                DateFormat formater = DateFormat.getDateTimeInstance();
+                DateFormat formater = DateFormat.getDateInstance();
                 String date_modify = formater.format(lastModDate);
                 if (ff.isDirectory()) {
                     File[] dirFls = ff.listFiles();
@@ -143,9 +157,9 @@ public class DownloadDrawerFragment extends Fragment {
                     fileName = ff.getName();
                     fileName = fileName.substring(fileName.lastIndexOf('.') + 1);
                     if (fileName.equals("jpg") || fileName.equals("png") || fileName.equals("bmp"))
-                        fls.add(new Item(ff.getName(), ff.length() + " Byte", date_modify, ff.getAbsolutePath(), "image_icon"));
+                        fls.add(new Item(ff.getName(), getFileSize(ff.length()), date_modify, ff.getAbsolutePath(), "image_icon"));
                     else
-                        fls.add(new Item(ff.getName(), ff.length() + " Byte", date_modify, ff.getAbsolutePath(), "file_icon"));
+                        fls.add(new Item(ff.getName(), getFileSize(ff.length()), date_modify, ff.getAbsolutePath(), "file_icon"));
                 }
 
 
@@ -158,7 +172,6 @@ public class DownloadDrawerFragment extends Fragment {
         if (dir.isEmpty()) {
             Snackbar snackbar = Snackbar.make(parentLayout, R.string.empty_folder, Snackbar.LENGTH_SHORT);
             snackbar.show();
-            emptyTextView = new TextView(getContext());
             emptyTextView.setText(getString(R.string.empty_folder));
             emptyTextView.setTextSize(20);
             emptyTextView.setTypeface(Typeface.create("sans-serif-medium", Typeface.ITALIC));
@@ -166,9 +179,19 @@ public class DownloadDrawerFragment extends Fragment {
             params.gravity = Gravity.CENTER;
             emptyTextView.setLayoutParams(params);
             emptyTextView.setVisibility(View.VISIBLE);
-            parentLayout.addView(emptyTextView);
-        }
+        } else if (emptyTextView.isShown())
+            emptyTextView.setVisibility(View.GONE);
         setupAdapter();
+
+    }
+
+    private String getFileSize(long size) {
+
+        if (size <= 0) return "0" + " Byte";
+        final String[] units = new String[]{"B", "kB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+
 
     }
 
@@ -179,51 +202,64 @@ public class DownloadDrawerFragment extends Fragment {
         adapter.setOnFileClickedListener(new FileAdapter.onFileClickedListener() {
             @Override
             public void onFileClick(String newPath) {
+                scrollPosition = ((LinearLayoutManager) recyclerViewDownloads.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                File fileToOpen;
                 if (currentDir != null) {
                     tmpPathBuff = currentDir.getAbsolutePath();
                 }
-                currentDir = new File(newPath);
-                if (!currentDir.isDirectory()) {
-
+                fileToOpen = new File(newPath);
+                if (!fileToOpen.isDirectory()) {
+                    /**
+                     * If file isn't a directory, here is decided the intent to be used based on Mime Type from extension
+                     */
                     try {
-                        fileName = currentDir.getName();
+                        fileName = fileToOpen.getName();
                         fileName = fileName.substring(fileName.lastIndexOf('.') + 1);
+
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_VIEW);
-                        Uri uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", currentDir);
+                        Uri uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", fileToOpen);
                         intent.setDataAndType(uri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileName));
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
+                    } catch (Exception e) {
                         Snackbar snackbar = Snackbar.make(parentLayout, R.string.acitivty_not_found, Snackbar.LENGTH_SHORT);
                         snackbar.show();
                         exceptionLaunched = true;
                     }
 
-
                 } else {
+                    currentDir = new File(newPath);
                     setupData(currentDir);
                     adapter.notifyDataSetChanged();
                     textCurrentPath.setText(currentDir.getAbsolutePath());
-
                 }
-                if (!exceptionLaunched)
+
+                if (!exceptionLaunched && fileToOpen.isDirectory())
                     pathStack.push(tmpPathBuff);
 
 
             }
 
             @Override
-            public void onLongFileClick(String path) {
+            public void onLongFileClick(List<Item> itemsChecked) {
+                checkedPaths = new ArrayList<>();
+                int i = 0;
                 FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
                 fabMain.close(true);
-                ((MainActivity) getActivity()).setOnLongPressPath(path);
+                for (Item it : itemsChecked) {
+                    checkedPaths.add(itemsChecked.get(i).getPath());
+                    i++;
+                }
+                ((MainActivity) getActivity()).setOnLongPressPaths(checkedPaths);
                 FragmentManager fm = getFragmentManager();
-                DialogLongPress dialog = DialogLongPress.newIstance("Actions");
+                DialogLongPress dialog = DialogLongPress.newIstance("Actions", itemsChecked.size() > 1);
                 dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
                 dialog.show(fm, "fragment_LongPress");
+
             }
         });
+        (recyclerViewDownloads.getLayoutManager()).scrollToPosition(scrollPosition);
         recyclerViewDownloads.setAdapter(adapter);
     }
 

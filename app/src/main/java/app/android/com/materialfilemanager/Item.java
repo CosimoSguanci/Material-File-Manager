@@ -9,6 +9,7 @@ public class Item implements Comparable<Item> {
     private String date;
     private String path;
     private String image;
+    public boolean isSelected=false;
 
     public Item(String name, String data, String date, String path, String image) {
         this.name = name;
@@ -20,6 +21,10 @@ public class Item implements Comparable<Item> {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name){
+        this.name=name;
     }
 
     public String getData() {
@@ -43,5 +48,13 @@ public class Item implements Comparable<Item> {
             return this.name.toLowerCase().compareTo(x.getName().toLowerCase());
         else
             throw new IllegalArgumentException();
+    }
+
+    public void setSelected(boolean isSelected){
+        this.isSelected=isSelected;
+    }
+
+    public boolean isSelected(){
+        return isSelected;
     }
 }

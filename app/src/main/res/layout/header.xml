@@ -2,25 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="@mipmap/header_back_green"
+    android:id="@+id/headerBackground"
+    android:background="@mipmap/wallpaper_47"
     android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="65dp"
-        android:src="@mipmap/ic_launcher" />
+
+
 
     <TextView
         android:id="@+id/freeSpaceTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="30dp"
         android:fontFamily="sans-serif-medium"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        android:textColor="@android:color/white"/>
 
 
 </LinearLayout>

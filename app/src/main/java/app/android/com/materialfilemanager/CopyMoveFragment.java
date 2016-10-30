@@ -129,7 +129,7 @@ public class CopyMoveFragment extends Fragment {
         try {
             for (File ff : dirs) {
                 Date lastModDate = new Date(ff.lastModified());
-                DateFormat formater = DateFormat.getDateTimeInstance();
+                DateFormat formater = DateFormat.getDateInstance();
                 String date_modify = formater.format(lastModDate);
                 if (ff.isDirectory()) {
                     File[] dirFls = ff.listFiles();
@@ -173,7 +173,7 @@ public class CopyMoveFragment extends Fragment {
             }
 
             @Override
-            public void onLongFileClick(String path) {
+            public void onLongFileClick(List<Item> i) {
                 // The App hasn't to react to a LongClick here
             }
         });

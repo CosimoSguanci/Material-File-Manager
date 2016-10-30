@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/folders"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/rootDirectory"
@@ -21,6 +23,17 @@
             android:id="@+id/downloads_selection"
             android:icon="@mipmap/ic_download_black_24dp"
             android:title="@string/downloads_drawer" />
+
+    </group>
+
+    <group
+        android:id="@+id/settings"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/settings_drawer"
+            android:icon="@mipmap/ic_settings_black_24dp"
+            android:title="@string/settings_drawer" />
 
     </group>
 

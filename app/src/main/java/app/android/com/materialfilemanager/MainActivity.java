@@ -1,10 +1,12 @@
 package app.android.com.materialfilemanager;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -31,12 +33,18 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionMenu;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.List;
 
 /**
  * Created by Cosimo Sguanci on 08/09/2016.
@@ -44,6 +52,7 @@ import java.text.DecimalFormat;
 public class MainActivity extends AppCompatActivity implements DialogNewFile.onNameTypedListener, DialogLongPress.onLongPressActions, CopyMoveFragment.OnFolderSelectedListener, DialogSearch.onSearchListener {
     private final static String TAG_FRAGMENT = "TAG_FRAGMENT";
     private Fragment fragment = null;
+    private SettingsFragment settingsFragment = null;
     private boolean hasToTransaction = false; // Boolean to check if the fragment has to change/transact (should check)
     private Toolbar myToolbar;
     private NavigationView navigationView;
@@ -51,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
     private ActionBarDrawerToggle drawerToggle;
     private ImageView searchImageView;
     private String currentFragment = "First"; // String to check to not change the Fragment if the user tap on it again
-    private String fileOrDir = null; // Strings used to determine if the file has typed a new file name or directory name
-    private String onLongPressPath; // Contains the path of the long pressed file
+    private String fileOrDir = null; // Strings used to determine if the file has typed a new file name or directory name.
+    private List<String> onLongPressPaths; // Contains the path of the long pressed file
     private String searchName;
     private boolean copyClicked = false;
     private boolean onSearchItem = false;
@@ -63,12 +72,15 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
      * @param f -the root directory
      * @return -the free space, truncated at two decimals
      */
-    public static String megabytesAvailable(File f) {
+    public static String getSpaceAvailable(File f) {
         StatFs stat = new StatFs(f.getPath());
         DecimalFormat df = new DecimalFormat("##.##");
         df.setRoundingMode(RoundingMode.DOWN);
         long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
-        return df.format((bytesAvailable / (1024.f * 1024.f)));
+        if (bytesAvailable <= 0) return "0" + " Byte";
+        final String[] units = new String[]{"B", "kB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(bytesAvailable) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(bytesAvailable / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
     @Override
@@ -99,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         searchImageView = (ImageView) findViewById(R.id.searchImageView);
         View parent = findViewById(R.id.toolbarLinearLayout);
         /**
-         * Expanding the touchable area of the searc image view on the toolbar.
+         * Expanding the touchable area of the search image view on the toolbar.
          */
         parent.post(new Runnable() {
             public void run() {
@@ -131,13 +143,8 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         drawerLayout.addDrawerListener(drawerToggle);
         View header = navigationView.getHeaderView(0);
         TextView textAvailableSpace = (TextView) header.findViewById(R.id.freeSpaceTextView);
-        String space = megabytesAvailable(Environment.getExternalStorageDirectory());
-        textAvailableSpace.setText(getString(R.string.free_space) + " " + space + " " + getString(R.string.available_space));
-
-        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                Should I check the android version that's running?
-
-        }*/
+        String space = getSpaceAvailable(Environment.getExternalStorageDirectory());
+        textAvailableSpace.setText(getString(R.string.free_space) + " " + space);
         /**
          * Checking permissions (WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
          */
@@ -177,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
 
             }
         });
-
     }
 
 
@@ -227,22 +233,34 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     case "Downloads":
                         fragmentClass = DownloadDrawerFragment.class;
                         break;
+                    case "Settings":
+
+                        break;
 
                 }
 
                 if (hasToTransaction) {
                     FloatingActionMenu fabMain = (FloatingActionMenu) findViewById(R.id.fabMain);
                     fabMain.close(true);
+                    if (currentFragment.equals("Settings")) {
+                        fabMain.setVisibility(View.GONE);
+                        settingsFragment = new SettingsFragment();
+                        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, settingsFragment, TAG_FRAGMENT).commit();
 
-                    try {
-                        fragment = (Fragment) fragmentClass.newInstance();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+
+                    } else {
+
+                        try {
+                            fragment = (Fragment) fragmentClass.newInstance();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+
+                        }
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment, TAG_FRAGMENT);
+                        ft.commit();
+                        getSupportFragmentManager().executePendingTransactions();
                     }
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment, TAG_FRAGMENT);
-                    ft.commit();
-                    getSupportFragmentManager().executePendingTransactions();
                 }
             }
 
@@ -315,6 +333,12 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     hasToTransaction = true;
                 }
                 break;
+            case R.id.settings_drawer:
+                if (!currentFragment.equals("Settings")) {
+                    currentFragment = "Settings";
+                    hasToTransaction = true;
+                }
+                break;
 
 
         }
@@ -323,19 +347,6 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
 
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        FloatingActionMenu fabMain = (FloatingActionMenu) findViewById(R.id.fabMain);
-        fabMain.close(false);
-    }
 
     @Override
     public void onResume() {
@@ -376,6 +387,8 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                         if (!newFile.exists()) {
                             try {
                                 newFile.createNewFile();
+
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -412,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     /**
                      * if fileOrDir is null, user pressed Rename Button
                      */
-                    File f = new File(onLongPressPath);
+                    File f = new File(onLongPressPaths.get(0));
                     f.renameTo(new File(mFrag.getCurrentDir() + "/" + fileName));
                     mFrag.setupData(mFrag.getCurrentDir());
                     View parentLayout = findViewById(R.id.rootView);
@@ -461,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     /**
                      * if fileOrDir is null, user pressed Rename Button
                      */
-                    File f = new File(onLongPressPath);
+                    File f = new File(onLongPressPaths.get(0));
                     f.renameTo(new File(iFrag.getCurrentDir() + "/" + fileName));
                     iFrag.setupData(iFrag.getCurrentDir());
                     View parentLayout = findViewById(R.id.rootView);
@@ -510,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     /**
                      * if fileOrDir is null, user pressed Rename Button
                      */
-                    File f = new File(onLongPressPath);
+                    File f = new File(onLongPressPaths.get(0));
                     f.renameTo(new File(muFrag.getCurrentDir() + "/" + fileName));
                     muFrag.setupData(muFrag.getCurrentDir());
                     View parentLayout = findViewById(R.id.rootView);
@@ -559,7 +572,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                     /**
                      * if fileOrDir is null, user pressed Rename Button
                      */
-                    File f = new File(onLongPressPath);
+                    File f = new File(onLongPressPaths.get(0));
                     f.renameTo(new File(dFrag.getCurrentDir() + "/" + fileName));
                     dFrag.setupData(dFrag.getCurrentDir());
                     View parentLayout = findViewById(R.id.rootView);
@@ -568,38 +581,106 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                 }
                 break;
 
+            case "Search":
+                SearchResultsFragment sFrag = (SearchResultsFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+
+
+                File f = new File(onLongPressPaths.get(0));
+                String previousName = f.getName();
+                int n = onLongPressPaths.get(0).length();
+                int x = f.getName().length();
+                f.renameTo(new File(onLongPressPaths.get(0).substring(0, n - x) + "/" + fileName));
+                sFrag.nameChanged(previousName, fileName);
+                View parentLayout = findViewById(R.id.rootView);
+                Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_renamed, Snackbar.LENGTH_LONG);
+                snackbar.show();
+
+                break;
         }
+
+
     }
+
 
     @Override
     public void onDeleteClicked() {
-        File deleteFile = new File(onLongPressPath);
-        switch (currentFragment) {
-            case "First":
-                MainFragment mFrag = (MainFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-                deleteFile.delete();
-                mFrag.setupData(mFrag.getCurrentDir());
-                break;
-            case "Images":
-                ImagesDrawerFragment iFrag = (ImagesDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-                deleteFile.delete();
-                iFrag.setupData(iFrag.getCurrentDir());
-                break;
-            case "Music":
-                MusicDrawerFragment muFrag = (MusicDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-                deleteFile.delete();
-                muFrag.setupData(muFrag.getCurrentDir());
-                break;
-            case "Downloads":
-                DownloadDrawerFragment dFrag = (DownloadDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-                deleteFile.delete();
-                dFrag.setupData(dFrag.getCurrentDir());
-                break;
-        }
+        for (String path : onLongPressPaths) {
+            File deleteFile = new File(path);
+            switch (currentFragment) {
+                case "First":
+                    MainFragment mFrag = (MainFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    if (deleteFile.isDirectory()) {
+                        File[] lf = deleteFile.listFiles();
+                        if (!(lf.length == 0))
+                            for (File f : lf) {
+                                f.delete();
+                            }
+                    }
+                    deleteFile.delete();
+                    mFrag.setupData(mFrag.getCurrentDir());
 
-        View parentLayout = findViewById(R.id.rootView);
-        Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_deleted, Snackbar.LENGTH_LONG);
-        snackbar.show();
+                    break;
+                case "Images":
+                    ImagesDrawerFragment iFrag = (ImagesDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    if (deleteFile.isDirectory()) {
+                        File[] lf = deleteFile.listFiles();
+                        if (!(lf.length == 0))
+                            for (File f : lf) {
+                                f.delete();
+                            }
+                    }
+                    deleteFile.delete();
+                    iFrag.setupData(iFrag.getCurrentDir());
+                    break;
+                case "Music":
+                    MusicDrawerFragment muFrag = (MusicDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    if (deleteFile.isDirectory()) {
+                        File[] lf = deleteFile.listFiles();
+                        if (!(lf.length == 0))
+                            for (File f : lf) {
+                                f.delete();
+                            }
+                    }
+                    deleteFile.delete();
+                    muFrag.setupData(muFrag.getCurrentDir());
+                    break;
+                case "Downloads":
+                    DownloadDrawerFragment dFrag = (DownloadDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    if (deleteFile.isDirectory()) {
+                        File[] lf = deleteFile.listFiles();
+                        if (!(lf.length == 0))
+                            for (File f : lf) {
+                                f.delete();
+                            }
+                    }
+                    deleteFile.delete();
+                    dFrag.setupData(dFrag.getCurrentDir());
+                    break;
+                case "Search":
+                    SearchResultsFragment sFrag = (SearchResultsFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    if (deleteFile.isDirectory()) {
+                        File[] lf = deleteFile.listFiles();
+                        if (!(lf.length == 0))
+                            for (File f : lf) {
+                                f.delete();
+                            }
+                    }
+                    deleteFile.delete();
+                    sFrag.deleteItemFromArrayResults(onLongPressPaths);
+                    break;
+
+            }
+            if (deleteFile.exists()) {
+                View parentLayout = findViewById(R.id.rootView);
+                Snackbar snackbar = Snackbar.make(parentLayout, R.string.no_authorization, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            } else {
+                View parentLayout = findViewById(R.id.rootView);
+                Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_deleted, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+
+        }
 
     }
 
@@ -644,6 +725,10 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                 ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, MainFragment.newIstance(), TAG_FRAGMENT);
                 ft.commit();
                 break;
+            case "Search":
+                ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, MainFragment.newIstance(), TAG_FRAGMENT);
+                ft.commit();
+                break;
             case "Images":
                 ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, ImagesDrawerFragment.newIstance(), TAG_FRAGMENT);
                 ft.commit();
@@ -661,63 +746,159 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
          * User clicked copy button
          */
         if (copyClicked) {
-            if (new File(onLongPressPath).isFile()) {
-                try {
-                    FileUtils.copyFileToDirectory(new File(onLongPressPath), new File(path));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    String dirName = new File(onLongPressPath).getName();
-                    FileUtils.copyDirectory(new File(onLongPressPath), new File(path + "/" + dirName));
-                } catch (IOException e) {
-                    e.printStackTrace();
+            for (String p : onLongPressPaths) {
+                if (new File(p).isFile()) {
+                    try {
+                        FileUtils.copyFileToDirectory(new File(p), new File(path));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        String dirName = new File(p).getName();
+                        FileUtils.copyDirectory(new File(p), new File(path + "/" + dirName));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+
+                    }
 
                 }
-
+                Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_copied, Snackbar.LENGTH_LONG);
+                snackbar.show();
             }
-            Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_copied, Snackbar.LENGTH_LONG);
-            snackbar.show();
+
         } else {
             /**
              * User clicked move button
              */
-            if (new File(onLongPressPath).isFile()) {
-                try {
-                    FileUtils.moveFileToDirectory(new File(onLongPressPath), new File(path), true);
-                    new File(onLongPressPath).delete();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    String dirName = new File(onLongPressPath).getName();
-                    FileUtils.copyDirectory(new File(onLongPressPath), new File(path + "/" + dirName));
-                    new File(onLongPressPath).delete();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            for (String p : onLongPressPaths) {
+                if (new File(p).isFile()) {
+                    try {
+                        FileUtils.moveFileToDirectory(new File(p), new File(path), true);
+                        new File(p).delete();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        String dirName = new File(p).getName();
+                        FileUtils.copyDirectory(new File(p), new File(path + "/" + dirName));
+                        new File(p).delete();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
+                }
+                Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_moved, Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
-            Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_moved, Snackbar.LENGTH_SHORT);
-            snackbar.show();
+
 
         }
+    }
+
+    @Override
+    public void onZipClicked() {
+
+        try {
+            ZipFile zipFile = new ZipFile(onLongPressPaths.get(0) + ".zip"); // How should I set the name? Now I use the name of the first file.
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+            for (String s : onLongPressPaths) {
+                File f = new File(s);
+                zipFile.addFile(f, parameters);
+            }
+
+        } catch (ZipException e) {
+            e.printStackTrace();
+        }
+        switch (currentFragment) {
+            case "First":
+                MainFragment mFrag = (MainFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                mFrag.setupData(mFrag.getCurrentDir());
+                break;
+            case "Images":
+                ImagesDrawerFragment iFrag = (ImagesDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                iFrag.setupData(iFrag.getCurrentDir());
+                break;
+            case "Music":
+                MusicDrawerFragment muFrag = (MusicDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                muFrag.setupData(muFrag.getCurrentDir());
+                break;
+            case "Downloads":
+                DownloadDrawerFragment dFrag = (DownloadDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                dFrag.setupData(dFrag.getCurrentDir());
+                break;
+            /**
+             * Should also manage "Search" case.
+             */
+
+        }
+        View parentLayout = findViewById(R.id.rootView);
+        Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_zipped, Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
+
+    @Override
+    public void onUnZipClicked() {
+        File f = new File(onLongPressPaths.get(0));
+        if (f.getName().substring(f.getName().lastIndexOf('.') + 1).equals("zip")) {
+            int n = onLongPressPaths.get(0).length();
+            int x = f.getName().length();
+            String destPath = onLongPressPaths.get(0).substring(0, (n - x));
+            try {
+                ZipFile zipFile = new ZipFile(onLongPressPaths.get(0));
+                zipFile.extractAll(destPath);
+            } catch (ZipException e) {
+                e.printStackTrace();
+            }
+            switch (currentFragment) {
+                case "First":
+                    MainFragment mFrag = (MainFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    mFrag.setupData(mFrag.getCurrentDir());
+                    break;
+                case "Images":
+                    ImagesDrawerFragment iFrag = (ImagesDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    iFrag.setupData(iFrag.getCurrentDir());
+                    break;
+                case "Music":
+                    MusicDrawerFragment muFrag = (MusicDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    muFrag.setupData(muFrag.getCurrentDir());
+                    break;
+                case "Downloads":
+                    DownloadDrawerFragment dFrag = (DownloadDrawerFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+                    dFrag.setupData(dFrag.getCurrentDir());
+                    break;
+                /**
+                 * Should also manage "Search" case.
+                 */
+
+            }
+            View parentLayout = findViewById(R.id.rootView);
+            Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_unzipped, Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        } else {
+            View parentLayout = findViewById(R.id.rootView);
+            Snackbar snackbar = Snackbar.make(parentLayout, R.string.error_unzip, Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+
     }
 
     /**
      * Setting the file path of the item which has been long pressed
      *
-     * @param path
+     * @param paths
      */
-    public void setOnLongPressPath(String path) {
+    public void setOnLongPressPaths(List<String> paths) {
 
-        this.onLongPressPath = path;
+        this.onLongPressPaths = paths;
     }
 
     public void onNameSearchTyped(String nameTyped) {
         onSearchItem = true;
+        currentFragment = "Search";
         setSearchName(nameTyped);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.fragmentContainer, SearchResultsFragment.newIstance(), TAG_FRAGMENT);
@@ -745,5 +926,21 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
     public void setFileOrDirToNull() {
         fileOrDir = null;
     }
+
+    public String getCurrentFragment() {
+        return currentFragment;
+    }
+
+    public void setCurrentFragment(String currentFragment) {
+        this.currentFragment = currentFragment;
+    }
+
+    public void launchGithubPage(View v) {
+        Intent webPageIntent = new Intent(Intent.ACTION_VIEW);
+        webPageIntent.setData(Uri.parse("https://github.com/CosimoSguanci"));
+        startActivity(webPageIntent);
+    }
+
+
 }
 

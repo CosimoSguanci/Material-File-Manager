@@ -2,17 +2,13 @@ package app.android.com.materialfilemanager;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 
 /**
@@ -22,13 +18,15 @@ import android.view.WindowManager;
 public class DialogLongPress extends DialogFragment {
 
 
+    private static boolean multipleSelection = false;
     private onLongPressActions listener;
 
     public DialogLongPress() {
     }
 
 
-    public static DialogLongPress newIstance(String title) {
+    public static DialogLongPress newIstance(String title, boolean multiple_Selection) {
+        multipleSelection = multiple_Selection;
         DialogLongPress frag = new DialogLongPress();
         Bundle args = new Bundle();
         args.putString("title", title);
@@ -41,15 +39,22 @@ public class DialogLongPress extends DialogFragment {
         String title = getArguments().getString("title");
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setView(R.layout.fragment_long_click);
+        if (!multipleSelection)
+            alertDialogBuilder.setView(R.layout.fragment_long_click);
+        else
+            alertDialogBuilder.setView(R.layout.fragment_long_click_multipleselection);
         return alertDialogBuilder.create();
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedIstanceState) {
+        if (!multipleSelection)
+            return inflater.inflate(R.layout.fragment_long_click, container);
+        else {
+            return inflater.inflate(R.layout.fragment_long_click_multipleselection, container);
+        }
 
-        return inflater.inflate(R.layout.fragment_long_click, container);
     }
 
 
@@ -85,26 +90,33 @@ public class DialogLongPress extends DialogFragment {
                 dismiss();
             }
         });
-        getDialog().findViewById(R.id.renameButton).setOnClickListener(new View.OnClickListener() {
+        if (!multipleSelection) {
+            getDialog().findViewById(R.id.renameButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onRenameClicked();
+                    dismiss();
+                }
+            });
+            getDialog().findViewById(R.id.unzipButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onUnZipClicked();
+                    dismiss();
+                }
+            });
+        }
+        getDialog().findViewById(R.id.zipButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onRenameClicked();
+                listener.onZipClicked();
                 dismiss();
             }
         });
 
-        /**
-         * Setting Dialog size
-         */
-        Window window = getDialog().getWindow();
-        Point size = new Point();
-        // Store dimensions of the screen in `size`
-        Display display = window.getWindowManager().getDefaultDisplay();
-        display.getSize(size);
-        window.setLayout((int) (size.y * 0.40), (int) (size.x * 0.60));
-        window.setGravity(Gravity.CENTER);
-        // Call super onResume after sizing
+
         super.onResume();
+
 
     }
 
@@ -133,6 +145,10 @@ public class DialogLongPress extends DialogFragment {
         void onCopyClicked();
 
         void onRenameClicked();
+
+        void onZipClicked();
+
+        void onUnZipClicked();
     }
 
 
