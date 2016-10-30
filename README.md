@@ -6,5 +6,14 @@ I started to develop this App as my first Android Project. I focalized mainly ab
 - Material Design UI patterns;
 - Providing a fast and responsive experience for the user.
 
+It has also the most common functions as a File Explorer, like:
+- Multiple files selection;
+- Create new files or directories;
+- Copy, Move, Delete, or Rename files or directories;
+- Zip and Unzip files and directories
+- Global search of files and directories in the phone memory.
+
+I think also that customization is a fundamental part of an Android App, so i've given the user the opportunity to change the drawer shortcut paths (to Images folder, Music folder, and Download folder).
+
 UI Example:
 ![screenshot_20161030-230519_framed](https://cloud.githubusercontent.com/assets/22922339/19840445/2f214aa6-9ef6-11e6-99a8-93bb316eb98b.png)
