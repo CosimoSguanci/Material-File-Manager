@@ -4,7 +4,7 @@
 <a href="https://play.google.com/store/apps/details?id=app.android.com.materialfilemanager">
   <img alt="Get it on Google Play"
        src="https://developer.android.com/images/brand/en_generic_rgb_wo_60.png" />
-</a>
+</a> <br>
 A simple, smooth and elegant Android File Manager with Material Design UI.
 I started to develop this App as my first Android Project. I focalized mainly about two things:
 - Material Design UI patterns;
