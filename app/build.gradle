@@ -8,8 +8,8 @@ android {
         applicationId "app.android.com.materialfilemanager"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.02"
         multiDexEnabled true
     }
     dexOptions {

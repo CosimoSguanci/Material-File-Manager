@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +26,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -373,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         /**
          * Should I use the switch statement only to check the fragment type?
          */
-        File newFile;
+        File newFile = null;
         switch (currentFragment) {
 
             case "First":
@@ -597,6 +599,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
 
                 break;
         }
+        scanFile(newFile);
 
 
     }
@@ -679,6 +682,8 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
                 Snackbar snackbar = Snackbar.make(parentLayout, R.string.file_deleted, Snackbar.LENGTH_LONG);
                 snackbar.show();
             }
+
+            scanFile(deleteFile);
 
         }
 
@@ -795,6 +800,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
 
 
         }
+        scanFile(new File(path));
     }
 
     @Override
@@ -808,6 +814,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
             for (String s : onLongPressPaths) {
                 File f = new File(s);
                 zipFile.addFile(f, parameters);
+                scanFile(f);
             }
 
         } catch (ZipException e) {
@@ -850,6 +857,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
             try {
                 ZipFile zipFile = new ZipFile(onLongPressPaths.get(0));
                 zipFile.extractAll(destPath);
+                scanFile(new File(destPath));
             } catch (ZipException e) {
                 e.printStackTrace();
             }
@@ -939,6 +947,17 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         Intent webPageIntent = new Intent(Intent.ACTION_VIEW);
         webPageIntent.setData(Uri.parse("https://github.com/CosimoSguanci"));
         startActivity(webPageIntent);
+    }
+
+    public void scanFile(File f) {
+        MediaScannerConnection.scanFile(this,
+                new String[]{f.getAbsolutePath()}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                        Log.i("ExternalStorage", "-> uri=" + uri);
+                    }
+                });
     }
 
 

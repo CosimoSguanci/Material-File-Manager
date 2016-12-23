@@ -244,7 +244,8 @@ public class MainFragment extends Fragment {
             }
         }
         dir.add(new Item(getString(R.string.internal_storage), "", "", rootPaths[0], "directory_icon"));
-        dir.add(new Item(getString(R.string.removable_sd), "", "", rootPaths[1], "directory_icon"));
+        if (rootPaths[1] != null)
+            dir.add(new Item(getString(R.string.removable_sd), "", "", rootPaths[1], "directory_icon"));
         setupAdapter();
     }
 
