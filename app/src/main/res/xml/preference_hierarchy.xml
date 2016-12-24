@@ -21,6 +21,18 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Choose Theme">
+
+        <ListPreference
+            android:dialogTitle="@string/choose_theme"
+            android:entries="@array/themes"
+            android:entryValues="@array/themes"
+            android:key="theme"
+            android:title="@string/themes" />
+
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/informations">
 
         <Preference android:layout="@layout/developer_prefs" />

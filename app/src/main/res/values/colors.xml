@@ -5,4 +5,31 @@
     <color name="colorAccent">#FF9800</color>
     <color name="colorPrimaryLight">#C8E6C9</color>
     <color name="colorFabTitleBackground">#646464</color>
+
+    <color name="colorPrimaryRed">#D32F2F</color>
+    <color name="colorPrimaryDarkRed">#B71C1C</color>
+    <color name="colorAccentRed">#607D8B</color>
+    <color name="colorPrimaryLightRed">#FFCDD2</color>
+
+    <color name="colorPrimaryYellow">#FFEB3B</color>
+    <color name="colorPrimaryDarkYellow">#FFD600</color>
+    <color name="colorAccentYellow">#00E676</color>
+    <color name="colorPrimaryLightYellow">#FFF9C4</color>
+
+    <color name="colorPrimaryBlue">#3F51B5</color>
+    <color name="colorPrimaryDarkBlue">#1A237E</color>
+    <color name="colorAccentBlue">#E91E63</color>
+    <color name="colorPrimaryLightBlue">#9FA8DA</color>
+
+    <color name="colorPrimaryOrange">#F57C00</color>
+    <color name="colorPrimaryDarkOrange">#E65100</color>
+    <color name="colorAccentOrange">#5D4037</color>
+    <color name="colorPrimaryLightOrange">#FFE0B2</color>
+
+    <color name="colorPrimaryBlack">#000</color>
+    <color name="colorPrimaryDarkBlack">#000</color>
+    <color name="colorAccentBlack">#000</color>
+    <color name="colorPrimaryLightBlack">#fff</color>
+
+
 </resources>
