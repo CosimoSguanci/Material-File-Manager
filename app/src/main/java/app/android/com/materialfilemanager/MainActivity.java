@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,8 +26,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.TouchDelegate;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -110,38 +109,6 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.mipmap.ic_menu_black_24dp);
         ab.setDisplayHomeAsUpEnabled(true);
-        searchImageView = (ImageView) findViewById(R.id.searchImageView);
-        View parent = findViewById(R.id.toolbarLinearLayout);
-        /**
-         * Expanding the touchable area of the search image view on the toolbar.
-         */
-        parent.post(new Runnable() {
-            public void run() {
-                Rect delegateArea = new Rect();
-                ImageView delegate = searchImageView;
-                delegate.getHitRect(delegateArea);
-                delegateArea.top -= 200;
-                delegateArea.bottom += 200;
-                delegateArea.left -= 250;
-                delegateArea.right += 200;
-                TouchDelegate expandedArea = new TouchDelegate(delegateArea,
-                        delegate);
-                if (View.class.isInstance(delegate.getParent())) {
-                    ((View) delegate.getParent())
-                            .setTouchDelegate(expandedArea);
-                }
-            }
-        });
-        searchImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fm = getSupportFragmentManager();
-                DialogSearch dialog = DialogSearch.newIstance("Global Search");
-                dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
-                dialog.show(fm, "fragment_search");
-                findViewById(R.id.fabMain).setVisibility(View.INVISIBLE);
-            }
-        });
         drawerLayout.addDrawerListener(drawerToggle);
         View header = navigationView.getHeaderView(0);
         TextView textAvailableSpace = (TextView) header.findViewById(R.id.freeSpaceTextView);
@@ -289,10 +256,24 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) { // Menu icon clicked
         FloatingActionMenu fabMain = (FloatingActionMenu) findViewById(R.id.fabMain);
         fabMain.close(true);
 
+        if (item.getItemId() == R.id.action_search) {
+            FragmentManager fm = getSupportFragmentManager();
+            DialogSearch dialog = DialogSearch.newIstance("Global Search");
+            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+            dialog.show(fm, "fragment_search");
+            fabMain.setVisibility(View.INVISIBLE);
+            return true;
+        }
 
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;

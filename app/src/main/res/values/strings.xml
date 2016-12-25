@@ -39,5 +39,6 @@
     <string name="title_downloads_preference">Downloads default folder</string>
     <string name="folder_should_settings">The folder should be in the root directory, otherwise it will not be found. </string>
     <string name="informations">Informations</string>
+    <string name="action_search">Search</string>
 
 </resources>

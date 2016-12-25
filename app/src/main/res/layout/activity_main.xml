@@ -20,24 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize">
-
-            <LinearLayout
-                android:id="@+id/toolbarLinearLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/searchImageView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="100dp"
-                    android:src="@mipmap/ic_search_black_24dp" />
-            </LinearLayout>
-
-        </android.support.v7.widget.Toolbar>
-
+            android:minHeight="?attr/actionBarSize"/>
 
         <android.support.design.widget.CoordinatorLayout
             android:id="@+id/coordinatorLayout"
