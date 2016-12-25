@@ -68,7 +68,8 @@ public class ImagesDrawerFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        SharedPreferences defaultFolder= PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        SharedPreferences defaultFolder = PreferenceManager.getDefaultSharedPreferences(getActivity());
         emptyTextView = new TextView(getContext());
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.rootView);
         emptyTextView.setVisibility(View.VISIBLE);

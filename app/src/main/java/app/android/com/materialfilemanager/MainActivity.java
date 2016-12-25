@@ -2,6 +2,7 @@ package app.android.com.materialfilemanager;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -33,6 +35,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
 import net.lingala.zip4j.core.ZipFile;
@@ -87,8 +90,92 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences theme = PreferenceManager.getDefaultSharedPreferences(this);
+        String themeToApply = theme.getString("theme", "");
+
+        switch (themeToApply) {
+            case "Green":
+                setTheme(R.style.AppTheme);
+                break;
+            case "Red":
+                setTheme(R.style.AppThemeRed);
+                break;
+            case "Yellow":
+                setTheme(R.style.AppThemeYellow);
+                break;
+            case "Orange":
+                setTheme(R.style.AppThemeOrange);
+                break;
+            case "Blue":
+                setTheme(R.style.AppThemeBlue);
+                break;
+            case "Dark":
+                setTheme(R.style.AppThemeBlack);
+                break;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FloatingActionMenu menu = (FloatingActionMenu) findViewById(R.id.fabMain);
+        FloatingActionButton but_1 = (FloatingActionButton) findViewById(R.id.fabND);
+        FloatingActionButton but_2 = (FloatingActionButton) findViewById(R.id.fabNF);
+        switch (themeToApply) {
+            case "Red":
+                menu.setMenuButtonColorNormalResId(R.color.colorPrimaryDarkRed);
+                menu.setMenuButtonColorPressedResId(R.color.colorPrimaryLightRed);
+                but_1.setColorNormalResId(R.color.colorPrimaryRed);
+                but_1.setColorPressedResId(R.color.colorPrimaryLightRed);
+                but_1.setColorRippleResId(R.color.colorPrimaryLightRed);
+                but_2.setColorNormalResId(R.color.colorPrimaryRed);
+                but_2.setColorPressedResId(R.color.colorPrimaryLightRed);
+                but_2.setColorRippleResId(R.color.colorPrimaryLightRed);
+                break;
+
+            case "Yellow":
+                menu.setMenuButtonColorNormalResId(R.color.colorPrimaryDarkYellow);
+                menu.setMenuButtonColorPressedResId(R.color.colorPrimaryLightYellow);
+                but_1.setColorNormalResId(R.color.colorPrimaryYellow);
+                but_1.setColorPressedResId(R.color.colorPrimaryLightYellow);
+                but_1.setColorRippleResId(R.color.colorPrimaryLightYellow);
+                but_2.setColorNormalResId(R.color.colorPrimaryYellow);
+                but_2.setColorPressedResId(R.color.colorPrimaryLightYellow);
+                but_2.setColorRippleResId(R.color.colorPrimaryLightYellow);
+                break;
+
+            case "Orange":
+                menu.setMenuButtonColorNormalResId(R.color.colorPrimaryDarkOrange);
+                menu.setMenuButtonColorPressedResId(R.color.colorPrimaryLightOrange);
+                but_1.setColorNormalResId(R.color.colorPrimaryOrange);
+                but_1.setColorPressedResId(R.color.colorPrimaryLightOrange);
+                but_1.setColorRippleResId(R.color.colorPrimaryLightOrange);
+                but_2.setColorNormalResId(R.color.colorPrimaryOrange);
+                but_2.setColorPressedResId(R.color.colorPrimaryLightOrange);
+                but_2.setColorRippleResId(R.color.colorPrimaryLightOrange);
+                break;
+
+            case "Blue":
+                menu.setMenuButtonColorNormalResId(R.color.colorPrimaryDarkBlue);
+                menu.setMenuButtonColorPressedResId(R.color.colorPrimaryLightBlue);
+                but_1.setColorNormalResId(R.color.colorPrimaryBlue);
+                but_1.setColorPressedResId(R.color.colorPrimaryLightBlue);
+                but_1.setColorRippleResId(R.color.colorPrimaryLightBlue);
+                but_2.setColorNormalResId(R.color.colorPrimaryBlue);
+                but_2.setColorPressedResId(R.color.colorPrimaryLightBlue);
+                but_2.setColorRippleResId(R.color.colorPrimaryLightBlue);
+                break;
+
+            case "Dark":
+                menu.setMenuButtonColorNormalResId(R.color.colorPrimaryDarkBlack);
+                menu.setMenuButtonColorPressedResId(R.color.colorPrimaryLightBlack);
+                but_1.setColorNormal(Color.WHITE);
+                but_1.setColorPressedResId(R.color.colorPrimaryLightBlack);
+                but_1.setColorRippleResId(R.color.colorPrimaryLightBlack);
+                but_2.setColorNormal(Color.WHITE);
+                but_2.setColorPressedResId(R.color.colorPrimaryLightBlack);
+                but_2.setColorRippleResId(R.color.colorPrimaryLightBlack);
+                break;
+
+
+        }
         /**
          * Navigation View Setup
          */
@@ -144,9 +231,31 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
         });
         drawerLayout.addDrawerListener(drawerToggle);
         View header = navigationView.getHeaderView(0);
+        switch (themeToApply) {
+            case "Red":
+                header.setBackgroundResource(R.mipmap.wallpaper_1376);
+                break;
+            case "Yellow":
+                header.setBackgroundResource(R.mipmap.wallpaper_5870);
+                break;
+            case "Blue":
+                header.setBackgroundResource(R.mipmap.wallpaper_6713);
+                break;
+            case "Orange":
+                header.setBackgroundResource(R.mipmap.wallpaper_5114);
+                break;
+            case "Dark":
+                header.setBackgroundResource(R.mipmap.wallpaper_1088);
+                searchImageView.setImageResource(R.mipmap.ic_search_white_24dp);
+                myToolbar.setTitleTextColor(Color.WHITE);
+                break;
+        }
+
         TextView textAvailableSpace = (TextView) header.findViewById(R.id.freeSpaceTextView);
         String space = getSpaceAvailable(Environment.getExternalStorageDirectory());
         textAvailableSpace.setText(getString(R.string.free_space) + " " + space);
+        if (themeToApply.equals("Yellow"))
+            textAvailableSpace.setTextColor(Color.BLACK);
         /**
          * Checking permissions (WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
          */
@@ -684,6 +793,7 @@ public class MainActivity extends AppCompatActivity implements DialogNewFile.onN
             }
 
             scanFile(deleteFile);
+
 
         }
 

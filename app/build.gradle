@@ -1,15 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         applicationId "app.android.com.materialfilemanager"
         minSdkVersion 21
-        targetSdkVersion 24
-        versionCode 3
-        versionName "1.02"
+
+
+        targetSdkVersion 25
+        versionCode 4
+        versionName "1.5"
+
         multiDexEnabled true
     }
     dexOptions {
@@ -29,15 +32,15 @@ dependencies {
     compile files('libs/commons-io-2.5.jar')
     compile files('libs/zip4j_1.3.2.jar')
 
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
     compile 'com.github.clans:fab:1.6.4'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'fr.tvbarthel.blurdialogfragment:lib:2.2.0'
     testCompile 'junit:junit:4.12'
-    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
-    compile 'com.android.support:multidex:1.0.0'
-    compile 'com.android.support:cardview-v7:24.0.0'
+    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:cardview-v7:25.1.0'
 }

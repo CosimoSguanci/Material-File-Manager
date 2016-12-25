@@ -10,6 +10,56 @@
 
     </style>
 
+    <style name="AppThemeRed" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryRed</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkRed</item>
+        <item name="colorAccent">@color/colorAccentRed</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+    </style>
+
+    <style name="AppThemeYellow" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryYellow</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkYellow</item>
+        <item name="colorAccent">@color/colorAccentYellow</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+    </style>
+
+    <style name="AppThemeBlue" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryBlue</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlue</item>
+        <item name="colorAccent">@color/colorAccentBlue</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+    </style>
+
+    <style name="AppThemeOrange" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryOrange</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkOrange</item>
+        <item name="colorAccent">@color/colorAccentOrange</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+    </style>
+
+    <style name="AppThemeBlack" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/colorAccentBlack</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@android:color/white</item>
+    </style>
+
     <style name="MenuLabelsStyle">
         <item name="android:background">@drawable/fab_label_background</item>
         <item name="android:textColor">#FFFFFF</item>
