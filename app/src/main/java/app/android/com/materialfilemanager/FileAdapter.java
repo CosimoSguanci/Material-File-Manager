@@ -22,8 +22,8 @@ import java.util.List;
  */
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> {
 
-    private List<Item> items;
-    private List<Item> itemsChecked;
+    private final List<Item> items;
+    private final List<Item> itemsChecked = new ArrayList<>();
     private Context c;
     private int id;
     private onFileClickedListener listener;
@@ -102,8 +102,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
 
     @Override
     public int getItemCount() {
-
-        return items == null ? 0 : items.size();
+        return items.size();
     }
 
     public interface onFileClickedListener {
@@ -122,7 +121,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.MyViewHolder> 
 
         public MyViewHolder(View v) {
             super(v);
-            itemsChecked = new ArrayList<>();
             textViewName = (TextView) v.findViewById(R.id.text_view_name);
             textViewSecond = (TextView) v.findViewById(R.id.second_text_view);
             textViewDate = (TextView) v.findViewById(R.id.text_view_date);

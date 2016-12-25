@@ -33,11 +33,11 @@ import java.util.Stack;
 public class CopyMoveFragment extends Fragment {
     private static final String TAG_FRAGMENT = "TAG_FRAGMENT";
     private static final int VERTICAL_ITEM_SPACE = 48;
-    private List<Item> dir;
+    private final List<Item> dir = new ArrayList<>(); // Only 1 ArrayList is needed, as we want show only directories
     private File currentDir;
     private FileAdapter adapter;
     private RecyclerView recyclerView;
-    private Stack<String> pathStack;
+    private final Stack<String> pathStack = new Stack<>();
     private TextView textCurrentPath;
     private OnFolderSelectedListener listener;
 
@@ -104,7 +104,6 @@ public class CopyMoveFragment extends Fragment {
                 listener.onFolderSelected(currentDir.getAbsolutePath());
             }
         });
-        pathStack = new Stack<>();
         textCurrentPath = (TextView) getView().findViewWithTag("textViewCurrentDir");
         textCurrentPath.setText(Environment.getExternalStorageDirectory().getAbsolutePath());
         recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_view);
@@ -125,7 +124,6 @@ public class CopyMoveFragment extends Fragment {
      */
     public void setupData(File f) {
         File[] dirs = f.listFiles();
-        dir = new ArrayList<>(); // Only 1 ArrayList is needed, as we want show only directories
         try {
             for (File ff : dirs) {
                 Date lastModDate = new Date(ff.lastModified());

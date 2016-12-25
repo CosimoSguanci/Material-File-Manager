@@ -41,20 +41,20 @@ import java.util.Stack;
 public class MainFragment extends Fragment {
     private static final int VERTICAL_ITEM_SPACE = 48;
     private static LinearLayout parentLayout;
-    private List<Item> dir;
-    private List<Item> fls;
+    private final List<Item> dir = new ArrayList<>();
+    private final List<Item> fls = new ArrayList<>();
     private String fileName = null;
     private File currentDir;
     private FileAdapter adapter;
     private RecyclerView recyclerView;
-    private Stack<String> pathStack; // Stack that contains the navigation history
+    private final Stack<String> pathStack = new Stack<>(); // Stack that contains the navigation history
     private TextView textCurrentPath; // String used to display the current path visited
     private File[] filesDirs;
     private TextView emptyTextView;
     private String tmpPathBuff; // String to keep the previous path before pushing it on the stack
     private boolean exceptionLaunched = false; // String to check if ActivityNotFoundException has been launched
     private boolean hasExternalSD = false;
-    private List<String> checkedPaths;
+    private final List<String> checkedPaths = new ArrayList<>();
     private int scrollPosition;
 
 
@@ -113,7 +113,6 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         ((MainActivity) getActivity()).setCurrentFragment("First");
-        pathStack = new Stack<>();
         emptyTextView = new TextView(getContext());
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.rootView);
         emptyTextView.setVisibility(View.VISIBLE);
@@ -155,8 +154,6 @@ public class MainFragment extends Fragment {
         textCurrentPath.setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.fabMain).setVisibility(View.VISIBLE);
         File[] dirs = f.listFiles();
-        dir = new ArrayList<>();
-        fls = new ArrayList<>();
         try {
             for (File ff : dirs) {
                 Date lastModDate = new Date(ff.lastModified());
@@ -229,7 +226,6 @@ public class MainFragment extends Fragment {
 
 
     private void setupMultipleStorage(File[] roots) {
-        dir = new ArrayList<>();
         String[] rootPaths = new String[2];
         int i = 0;
         for (File f : roots) {
@@ -324,7 +320,6 @@ public class MainFragment extends Fragment {
             @Override
             public void onLongFileClick(List<Item> itemsChecked) {
                 if (!hasExternalSD) {
-                    checkedPaths = new ArrayList<>();
                     int i = 0;
                     FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
                     fabMain.close(true);

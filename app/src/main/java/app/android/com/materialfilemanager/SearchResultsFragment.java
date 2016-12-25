@@ -50,14 +50,14 @@ public class SearchResultsFragment extends Fragment {
     private String searchName;
     private TextView noResultsTextView;
     private TextView emptyTextView;
-    private List<Item> results;
+    private final List<Item> results = new ArrayList<>();
     private File currentDir = null;
     private FileAdapter adapter;
     private String tmpPathBuff;
     private boolean exceptionLaunched = false;
-    private Stack<String> pathStack;
-    private List<Item> fls;
-    private List<String> checkedPaths;
+    private final Stack<String> pathStack = new Stack<>();
+    private final List<Item> fls = new ArrayList<>();
+    private final List<String> checkedPaths = new ArrayList<>();
 
 
     public static SearchResultsFragment newIstance() {
@@ -197,7 +197,6 @@ public class SearchResultsFragment extends Fragment {
              */
             @Override
             public void onLongFileClick(List<Item> itemsChecked) {
-                checkedPaths = new ArrayList<>();
                 int i = 0;
                 FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
                 fabMain.close(true);
@@ -226,8 +225,6 @@ public class SearchResultsFragment extends Fragment {
     public void setupData(File f) {
         textCurrentPath.setVisibility(View.VISIBLE);
         File[] dirs = f.listFiles();
-        results = new ArrayList<>();
-        fls = new ArrayList<>();
         try {
             for (File ff : dirs) {
                 Date lastModDate = new Date(ff.lastModified());
@@ -311,9 +308,7 @@ public class SearchResultsFragment extends Fragment {
             recyclerView = recyclerView_passed;
             this.files = files;
             this.searchName = searchName;
-            results = new ArrayList<>();
             progress = new ProgressDialog(getActivity());
-            pathStack = new Stack<>();
         }
 
         protected void onPreExecute() {

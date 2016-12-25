@@ -1,6 +1,5 @@
 package app.android.com.materialfilemanager;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -44,16 +43,16 @@ public class MusicDrawerFragment extends Fragment {
     private static LinearLayout parentLayout;
     private RecyclerView recyclerViewMusic;
     private File currentDir;
-    private Stack<String> pathStack;
-    private List<Item> dir;
-    private List<Item> fls;
+    private final Stack<String> pathStack = new Stack<>();
+    private final List<Item> dir = new ArrayList<>();
+    private final List<Item> fls = new ArrayList<>();
     private FileAdapter adapter;
     private String fileName = null;
     private TextView textCurrentPath;
     private TextView emptyTextView;
     private String tmpPathBuff;
     private boolean exceptionLaunched = false;
-    private List<String> checkedPaths;
+    private final List<String> checkedPaths = new ArrayList<>();
     private int scrollPosition;
     private String defaultFolderName;
 
@@ -72,7 +71,6 @@ public class MusicDrawerFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         SharedPreferences defaultFolder= PreferenceManager.getDefaultSharedPreferences(getActivity());
-        pathStack = new Stack<>();
         emptyTextView = new TextView(getContext());
         parentLayout = (LinearLayout) getActivity().findViewById(R.id.rootView);
         emptyTextView.setVisibility(View.VISIBLE);
@@ -134,9 +132,6 @@ public class MusicDrawerFragment extends Fragment {
     public void setupData(File f) {
 
         File[] dirs = f.listFiles();
-        dir = new ArrayList<>();
-        fls = new ArrayList<>();
-
 
         try {
             for (File ff : dirs) {
@@ -251,7 +246,6 @@ public class MusicDrawerFragment extends Fragment {
 
             @Override
             public void onLongFileClick(List <Item> itemsChecked) {
-                checkedPaths=new ArrayList<>();
                 int i=0;
                 FloatingActionMenu fabMain = (FloatingActionMenu) getActivity().findViewById(R.id.fabMain);
                 fabMain.close(true);
