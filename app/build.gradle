@@ -7,9 +7,12 @@ android {
     defaultConfig {
         applicationId "app.android.com.materialfilemanager"
         minSdkVersion 21
+
+
         targetSdkVersion 25
-        versionCode 3
-        versionName "1.02"
+        versionCode 4
+        versionName "1.5"
+
         multiDexEnabled true
     }
     dexOptions {
